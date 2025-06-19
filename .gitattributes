@@ -1,0 +1,2 @@
+*.gdb filter=lfs diff=lfs merge=lfs -text
+NLCD_data/WAMA.gdb/* filter=lfs diff=lfs merge=lfs -text
