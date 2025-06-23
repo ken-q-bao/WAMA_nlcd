@@ -49,7 +49,7 @@ ids = as.list(counties_sf$id)      # make list of counties to parallelize over
 #------------------------------------------------------------------------------
 library(doParallel)
 library(foreach)
-library(doSNOW)
+library(doSNOW) # needed for progress bar
 num_cores = detectCores() - 2       # use 5 less avoids memory issues
 
 cl = makeCluster(num_cores)         # initiate cluster environment
@@ -69,27 +69,6 @@ results = foreach(
 close(pb)
 stopCluster(cl)
 ###############################################################################
-
-# use 5 less than num of cores (recommended at least 1 less)
-num_cores = detectCores() - 5       # use 5 less avoids memory issues
-
-cl = makeCluster(num_cores)         # initiate cluster environment
-clusterExport(                      # export necessary global vars to clusters
-  cl, 
-  c(
-    "counties_sf", 
-    "nlcd_filepath",
-    "ids", 
-    "extract_nlcd"
-  )
-) 
-clusterEvalQ(cl, {                  # export necessary libraries to clusters
-  library(sf)
-  library(terra)
-})
-
-results = parLapply(cl, ids, extract_nlcd)  # use parLapply for list output
-stopCluster(cl)                             # correctly stop the cluster
 
 # 5. Clean and Combine output
 results = results[lengths(results)!=0]      # some list elements are NULL which need removal
